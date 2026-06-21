@@ -1,58 +1,90 @@
-# PHP Internship - Task 1: Environment Setup
+# Task 3: Advanced Blog Management System
 
-This is the repository structure for **Task 1** of my PHP Developer Internship. It establishes a basic, clean, and responsive web interface to verify that the local PHP development environment and client-side scripts are working in harmony.
+Welcome to **Task 3** of the Web Development Internship. This task upgrades the Blog Management System to incorporate **Bootstrap 5**, integrated **Search**, **Pagination**, and a complete **Dashboard Administration** panel.
 
 ---
 
-## Folder Organization
+## 1. Project Folder Structure
+
+Ensure your project files are placed exactly as shown below:
 
 ```text
 blog-project/
-├── index.php         # Entry point: renders page layout and server configurations
-├── README.md         # Documentation: project details and execution guide
+├── index.php             # Public homepage listing blog posts with pagination
+├── register.php          # User registration view styled with Bootstrap 5
+├── login.php             # User login view styled with Bootstrap 5
+├── logout.php            # Session termination logic
+├── dashboard.php         # Author control panel with stats, paginated tables, and search
+├── create-post.php       # Form to write a new blog post
+├── edit-post.php         # Form to modify an existing blog post
+├── delete-post.php       # Controller to delete a post
+├── search.php            # Dedicated public search results page with pagination
+├── config/
+│   └── database.php      # PDO database connection handler
 ├── css/
-│   └── style.css     # Styling: clean, layout flexbox configurations, and card interfaces
+│   └── style.css         # Custom CSS overrides for hover animations
 ├── js/
-│   └── script.js     # Interactivity: DOM listeners and welcome verification handlers
-└── images/           # Assets: stores graphical banners and site icons
+│   └── script.js         # JavaScript file providing delete confirmation boxes
+└── README.md             # Project instruction guide (this file)
 ```
 
 ---
 
-## File Explanations
+## 2. Dynamic Pagination Explanation (5 Posts Per Page)
+We implement pagination dynamically in SQL and PHP. Here is a step-by-step logic guide:
 
-1. **`index.php`**: Standard procedural PHP page displaying welcome notes and dynamically reading local server information (such as PHP version, Host, OS, and remote browser details) using standard `$_SERVER` and `phpversion()` functions.
-2. **`css/style.css`**: Features a clean stylesheet with custom responsive elements, resetting standard browser defaults and implementing cards that shift layout on smaller viewports.
-3. **`js/script.js`**: Integrates interactive events on buttons using modern `addEventListener('click')` calls. It logs messages to the developer console and manipulates DOM values dynamically to prove front-end scripts work.
-4. **`README.md`**: Provides instruction manuals for the workspace configuration.
+1. **Active Page Detection**: Check the URL query string `page` (e.g. `?page=2`). If missing or non-numeric, it defaults to Page `1`.
+2. **Limit & Offset Calculation**:
+   - Limit: `$limit = 5;`
+   - Offset: `$offset = ($page - 1) * $limit;` (Page 1 starts at index 0, Page 2 at index 5, etc.).
+3. **Database Count Query**: Run a `SELECT COUNT(*)` query to count the total rows matching the selection constraints (or matching the search terms).
+4. **Calculated Total Pages**: Determine total pages by dividing total records by page size, rounded up: `$total_pages = ceil($total_records / $limit);`
+5. **Paginated Data Retrieval**: Query records utilizing MySQL clauses `LIMIT :limit OFFSET :offset`. Placeholders are bound as integer types in PDO:
+   ```php
+   $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+   $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+   ```
+6. **Query Persistence**: When pagination links are clicked, the active search query is URL-encoded and appended (`?q=query&page=2`) using `http_build_query()` or string concats to ensure pages align with search filters.
 
 ---
 
-## How to Run This Project
+## 3. Dynamic Search Functionality Explanation
+The search bar uses standard relational database filters:
 
-Since **XAMPP** is installed on this system, you can run the site using either PHP's built-in quick server or through XAMPP's server directory.
-
-### Method A: Running via PHP Built-in Server (Recommended for quick testing)
-This lets you launch the server directly from this folder without moving any files.
-
-1. Open a terminal (PowerShell/Command Prompt) in this project folder (`c:\Users\Abhinav\OneDrive\Desktop\Blog`).
-2. Run this command:
-   ```bash
-   C:\xampp\php\php.exe -S localhost:8000
+1. **Collect Input**: The form sends inputs using a GET request (e.g. `search.php?q=keyword` or `dashboard.php?search=keyword`).
+2. **LIKE Queries**: The database filters records using the SQL wildcards query:
+   ```sql
+   SELECT * FROM posts WHERE title LIKE :search OR content LIKE :search
    ```
-3. Open your browser and go to:
+3. **Bound placeholders**: The keyword is bound as `'%keyword%'` using PDO to prevent SQL injection.
+4. **Zero State Check**: If the query returns zero rows, the application renders a clean Bootstrap "No posts found" message.
+
+---
+
+## 4. Bootstrap 5 CDN Links Used
+The views load external style resources via CDN paths in header blocks:
+
+*   **CSS Stylesheet**:
+    ```html
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    ```
+*   **Icon Library**:
+    ```html
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    ```
+*   **JavaScript Bundle**:
+    ```html
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    ```
+
+---
+
+## 5. Running the Project in XAMPP
+
+1. Ensure your **XAMPP Control Panel** is open with **Apache** and **MySQL** services started.
+2. Place the project files inside: `C:\xampp\htdocs\blog-project\`.
+3. Open your browser and navigate to:
    ```text
    http://localhost:8000
    ```
-
-### Method B: Hosting inside XAMPP htdocs
-If you want to host it permanently through XAMPP's Apache service:
-
-1. Copy the folder containing these files.
-2. Go to your local XAMPP installation directory: `C:\xampp\htdocs\`
-3. Create a folder named `blog-project` and paste the files inside.
-4. Open the **XAMPP Control Panel** and click **Start** next to **Apache**.
-5. Open your browser and navigate to:
-   ```text
-   http://localhost/blog-project
-   ```
+   *(Or if running through XAMPP Apache, use `http://localhost/blog-project/index.php`)*

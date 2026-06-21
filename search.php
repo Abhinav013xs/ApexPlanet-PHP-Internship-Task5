@@ -1,15 +1,12 @@
 <?php
 // Project: PHP & MySQL Blog Management System (Task 3)
-// File: index.php
-// Description: Public landing homepage with Bootstrap 5 cards, search form, and pagination.
+// File: search.php
+// Description: Public search results page with pagination support.
 
-// Start the session
 session_start();
-
-// Include database configurations
 require_once "config/database.php";
 
-// Set up pagination configurations
+$search_query = trim($_GET["q"] ?? "");
 $page = isset($_GET["page"]) && is_numeric($_GET["page"]) ? (int)$_GET["page"] : 1;
 if ($page < 1) {
     $page = 1;
@@ -24,24 +21,32 @@ $total_pages = 0;
 $error_message = "";
 
 try {
-    // 1. Get the total count of all blog articles
-    $count_stmt = $conn->query("SELECT COUNT(*) FROM posts");
-    $total_posts = (int)$count_stmt->fetchColumn();
-    
-    // Calculate total pages
-    $total_pages = ceil($total_posts / $limit);
+    if (!empty($search_query)) {
+        // 1. Get the total count of matching articles for pagination calculation
+        $count_stmt = $conn->prepare("SELECT COUNT(*) FROM posts WHERE title LIKE :search OR content LIKE :search");
+        $count_stmt->execute(['search' => '%' . $search_query . '%']);
+        $total_posts = (int)$count_stmt->fetchColumn();
+        
+        // Calculate total pages
+        $total_pages = ceil($total_posts / $limit);
 
-    // 2. Fetch the paginated articles (latest first)
-    $stmt = $conn->prepare("SELECT * FROM posts ORDER BY created_at DESC LIMIT :limit OFFSET :offset");
-    
-    // Bind parameters as integers to prevent SQL syntax errors in prepared limits
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-    
-    $stmt->execute();
-    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // 2. Fetch the paginated matching records
+        $stmt = $conn->prepare("SELECT * FROM posts WHERE title LIKE :search OR content LIKE :search ORDER BY created_at DESC LIMIT :limit OFFSET :offset");
+        
+        // Bind parameters
+        $stmt->bindValue(':search', '%' . $search_query . '%', PDO::PARAM_STR);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        
+        $stmt->execute();
+        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        // If query is empty, redirect to home page
+        header("Location: index.php");
+        exit;
+    }
 } catch (PDOException $e) {
-    $error_message = "Could not retrieve articles: " . $e->getMessage();
+    $error_message = "Error performing search: " . $e->getMessage();
 }
 ?>
 <!DOCTYPE html>
@@ -49,7 +54,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Simple Blog System</title>
+    <title>Search Results - Simple Blog System</title>
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons CDN -->
@@ -71,25 +76,14 @@ try {
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto gap-2">
                     <li class="nav-item">
-                        <a class="nav-link active" href="index.php"><i class="bi bi-house-door-fill"></i> Home</a>
+                        <a class="nav-link" href="index.php"><i class="bi bi-house-door-fill"></i> Home</a>
                     </li>
-                    
                     <?php if (isset($_SESSION["logged_in"]) && $_SESSION["logged_in"] === true): ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="dashboard.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link logout-link text-danger" href="logout.php">
-                                <i class="bi bi-box-arrow-right"></i> Logout (<?php echo htmlspecialchars($_SESSION["username"]); ?>)
-                            </a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="dashboard.php"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link logout-link text-danger" href="logout.php"><i class="bi bi-box-arrow-right"></i> Logout (<?php echo htmlspecialchars($_SESSION["username"]); ?>)</a></li>
                     <?php else: ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="login.php"><i class="bi bi-box-arrow-in-right"></i> Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="register.php"><i class="bi bi-person-plus-fill"></i> Register</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="login.php"><i class="bi bi-box-arrow-in-right"></i> Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="register.php"><i class="bi bi-person-plus-fill"></i> Register</a></li>
                     <?php endif; ?>
                 </ul>
             </div>
@@ -99,20 +93,20 @@ try {
     <!-- Main Container -->
     <main class="container my-5">
         
-        <!-- Header Section and Search Bar -->
-        <div class="row align-items-center mb-5 border-bottom pb-4">
-            <div class="col-md-6 col-lg-7">
-                <h1 class="display-5 fw-bold text-dark mb-1">Welcome to BlogSystem</h1>
-                <p class="text-muted fs-5 mb-0">A simple blog site built using PHP, MySQL & Bootstrap 5.</p>
+        <!-- Search Results Header -->
+        <div class="row align-items-center mb-5 border-bottom pb-3">
+            <div class="col-md-6">
+                <h1>Search Results</h1>
+                <p class="text-muted mb-0">Showing results for: <strong class="text-primary">"<?php echo htmlspecialchars($search_query); ?>"</strong> (<?php echo $total_posts; ?> matches found)</p>
             </div>
             
-            <!-- Public Search Form (Redirects to search.php) -->
-            <div class="col-md-6 col-lg-5 mt-3 mt-md-0">
+            <!-- Floating Inline Search Form -->
+            <div class="col-md-6 mt-3 mt-md-0">
                 <form action="search.php" method="GET" class="d-flex gap-2">
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" name="q" class="form-control border-start-0" placeholder="Search blog posts..." required>
-                        <button type="submit" class="btn btn-primary fw-semibold px-3">Search</button>
+                        <input type="text" name="q" class="form-control border-start-0" placeholder="Search blog posts..." required value="<?php echo htmlspecialchars($search_query); ?>">
+                        <button type="submit" class="btn btn-primary fw-semibold">Search</button>
                     </div>
                 </form>
             </div>
@@ -126,7 +120,7 @@ try {
             </div>
         <?php endif; ?>
 
-        <!-- Post Listings Cards Grid -->
+        <!-- Post Cards Loop -->
         <div class="row justify-content-center">
             <div class="col-lg-9">
                 
@@ -147,12 +141,12 @@ try {
 
                     <!-- Pagination Navigation -->
                     <?php if ($total_pages > 1): ?>
-                        <nav aria-label="Page navigation" class="mt-5">
+                        <nav aria-label="Search results page navigation" class="mt-5">
                             <ul class="pagination justify-content-center">
                                 
                                 <!-- Previous Button -->
                                 <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
-                                    <a class="page-link" href="?page=<?php echo $page - 1; ?>">
+                                    <a class="page-link" href="?q=<?php echo urlencode($search_query); ?>&page=<?php echo $page - 1; ?>">
                                         <i class="bi bi-chevron-left"></i> Previous
                                     </a>
                                 </li>
@@ -160,13 +154,13 @@ try {
                                 <!-- Page Number Links -->
                                 <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                                     <li class="page-item <?php echo ($page === $i) ? 'active' : ''; ?>">
-                                        <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                                        <a class="page-link" href="?q=<?php echo urlencode($search_query); ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a>
                                     </li>
                                 <?php endfor; ?>
 
                                 <!-- Next Button -->
                                 <li class="page-item <?php echo ($page >= $total_pages) ? 'disabled' : ''; ?>">
-                                    <a class="page-link" href="?page=<?php echo $page + 1; ?>">
+                                    <a class="page-link" href="?q=<?php echo urlencode($search_query); ?>&page=<?php echo $page + 1; ?>">
                                         Next <i class="bi bi-chevron-right"></i>
                                     </a>
                                 </li>
@@ -176,16 +170,12 @@ try {
                     <?php endif; ?>
 
                 <?php else: ?>
-                    <!-- Empty State -->
+                    <!-- Empty Search State -->
                     <div class="text-center py-5 bg-white border rounded-3 shadow-sm">
-                        <i class="bi bi-journal-x text-muted display-1"></i>
-                        <h3 class="fw-bold mt-3">No posts available</h3>
-                        <p class="text-muted">There are no published articles to display right now.</p>
-                        <?php if (isset($_SESSION["logged_in"]) && $_SESSION["logged_in"] === true): ?>
-                            <a href="create-post.php" class="btn btn-primary fw-semibold px-4 mt-2">Create the first post!</a>
-                        <?php else: ?>
-                            <p class="mb-0">Please <a href="login.php" class="text-primary text-decoration-none fw-semibold">login</a> to publish the first article!</p>
-                        <?php endif; ?>
+                        <i class="bi bi-search-heart text-muted display-1"></i>
+                        <h3 class="fw-bold mt-3">No posts found</h3>
+                        <p class="text-muted">We couldn't find any articles matching your query. Try different words.</p>
+                        <a href="index.php" class="btn btn-primary fw-semibold px-4 mt-2">Back to Homepage</a>
                     </div>
                 <?php endif; ?>
                 

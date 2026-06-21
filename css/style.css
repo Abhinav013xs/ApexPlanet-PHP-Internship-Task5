@@ -1,318 +1,44 @@
 /* 
-  Project: PHP & MySQL Blog Management System (Task 2)
+  Project: PHP & MySQL Blog Management System (Task 3)
   Author: Web Development Intern
-  Description: Simple, clean styling for forms, navigation, tables, and buttons.
+  Description: Custom CSS overrides to supplement Bootstrap 5 styling.
 */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+/* Custom global overrides */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    color: #333333;
-    background-color: #f7fafc;
-    min-height: 100vh;
+    background-color: #f8f9fa;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 
-/* Container */
-.container {
-    width: 90%;
-    max-width: 960px;
-    margin: 0 auto;
-}
-
-/* Navigation Bar */
-nav {
-    background-color: #2c3e50;
-    color: #ffffff;
-    padding: 15px 0;
-}
-
-.nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo a {
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.nav-links {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-}
-
-.nav-links a {
-    color: #bdc3c7;
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    transition: color 0.2s;
-}
-
-.nav-links a:hover {
-    color: #ffffff;
-}
-
-.nav-links .logout-link {
-    color: #e74c3c;
-}
-
-.nav-links .logout-link:hover {
-    color: #c0392b;
-}
-
-/* Main Content Area */
+/* Page content wrapper */
 main {
-    padding: 40px 0;
     flex: 1;
 }
 
-/* Typography */
-h1 {
-    color: #2c3e50;
-    margin-bottom: 20px;
+/* Card hover animation */
+.hover-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-h2 {
-    color: #34495e;
-    margin-bottom: 15px;
+.hover-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Alert Messages (Success/Error) */
-.alert {
-    padding: 12px 15px;
-    border-radius: 4px;
-    margin-bottom: 20px;
-    font-size: 14px;
-}
-
-.alert-danger {
-    background-color: #fadbd8;
-    color: #c0392b;
-    border: 1px solid #f5b7b1;
-}
-
-.alert-success {
-    background-color: #d4efdf;
-    color: #27ae60;
-    border: 1px solid #abebc6;
-}
-
-/* Forms (Login, Register, Post Creation) */
-.form-box {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.form-box-large {
-    max-width: 800px;
-}
-
-.form-group {
-    margin-bottom: 18px;
-}
-
-.form-group label {
-    display: block;
-    font-weight: 600;
-    color: #4a5568;
-    margin-bottom: 6px;
-    font-size: 14px;
-}
-
-.form-control {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #cbd5e0;
-    border-radius: 4px;
-    font-size: 15px;
-    color: #2d3748;
-    transition: border-color 0.2s;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #3498db;
-}
-
-textarea.form-control {
-    resize: vertical;
-    min-height: 150px;
-}
-
-/* Buttons */
-.btn {
-    display: inline-block;
-    padding: 10px 18px;
-    font-size: 14px;
-    font-weight: 600;
-    text-align: center;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    border: none;
-    transition: background-color 0.2s;
-}
-
-.btn-primary {
-    background-color: #3498db;
-    color: #ffffff;
-}
-
-.btn-primary:hover {
-    background-color: #2980b9;
-}
-
-.btn-secondary {
-    background-color: #95a5a6;
-    color: #ffffff;
-}
-
-.btn-secondary:hover {
-    background-color: #7f8c8d;
-}
-
-.btn-danger {
-    background-color: #e74c3c;
-    color: #ffffff;
-}
-
-.btn-danger:hover {
-    background-color: #c0392b;
-}
-
-.btn-success {
-    background-color: #2ecc71;
-    color: #ffffff;
-}
-
-.btn-success:hover {
-    background-color: #27ae60;
-}
-
-/* Action Link Buttons inside Dashboard */
-.btn-sm {
-    padding: 6px 12px;
-    font-size: 12px;
-    margin-right: 5px;
-}
-
-/* Tables (Dashboard Posts List) */
-.table-responsive {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-th, td {
-    padding: 15px;
-    text-align: left;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-th {
-    background-color: #f8fafc;
-    color: #4a5568;
-    font-weight: 600;
-}
-
-tr:hover {
-    background-color: #f8fafc;
-}
-
-/* Public Blog Post Listings */
-.post-list {
-    margin-top: 30px;
-}
-
-.post-card {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    margin-bottom: 25px;
-}
-
-.post-card h2 {
-    margin-bottom: 8px;
-}
-
-.post-meta {
-    font-size: 13px;
-    color: #718096;
-    margin-bottom: 15px;
-}
-
-.post-content {
-    color: #4a5568;
+/* Pre-line formatting to preserve line breaks in blog content */
+.post-content-preview {
     white-space: pre-line;
+    color: #495057;
 }
 
-/* Empty state styling */
-.empty-state {
-    text-align: center;
-    padding: 40px;
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    color: #718096;
+/* Custom dashboard stat cards layout */
+.stat-card {
+    border-left: 4px solid #0d6efd;
 }
 
-/* Footer styling */
+/* Footer layout */
 footer {
-    background-color: #2c3e50;
-    color: #bdc3c7;
-    text-align: center;
-    padding: 20px 0;
     margin-top: auto;
-    font-size: 14px;
-    border-top: 4px solid #3498db;
-}
-
-footer .highlight {
-    color: #ffffff;
-    font-weight: 600;
-}
-
-/* Responsive Breakpoints */
-@media (max-width: 768px) {
-    .nav-container {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .nav-links {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    th, td {
-        padding: 10px;
-    }
 }
