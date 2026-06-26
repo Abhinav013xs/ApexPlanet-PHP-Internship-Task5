@@ -43,8 +43,11 @@ try {
     if ($user_role === "admin") {
         if (!empty($search_query)) {
             // Count matching posts for Admin
-            $count_stmt = $conn->prepare("SELECT COUNT(*) FROM posts WHERE title LIKE :search OR content LIKE :search");
-            $count_stmt->execute(['search' => '%' . $search_query . '%']);
+            $count_stmt = $conn->prepare("SELECT COUNT(*) FROM posts WHERE title LIKE :search_title OR content LIKE :search_content");
+            $count_stmt->execute([
+                'search_title' => '%' . $search_query . '%',
+                'search_content' => '%' . $search_query . '%'
+            ]);
             $total_posts_display = (int)$count_stmt->fetchColumn();
         } else {
             // Count all posts in the system for Admin
@@ -55,10 +58,11 @@ try {
         // Editor role
         if (!empty($search_query)) {
             // Count matching posts created by this editor
-            $count_stmt = $conn->prepare("SELECT COUNT(*) FROM posts WHERE user_id = :user_id AND (title LIKE :search OR content LIKE :search)");
+            $count_stmt = $conn->prepare("SELECT COUNT(*) FROM posts WHERE user_id = :user_id AND (title LIKE :search_title OR content LIKE :search_content)");
             $count_stmt->execute([
                 'user_id' => $user_id,
-                'search' => '%' . $search_query . '%'
+                'search_title' => '%' . $search_query . '%',
+                'search_content' => '%' . $search_query . '%'
             ]);
             $total_posts_display = (int)$count_stmt->fetchColumn();
         } else {
@@ -78,10 +82,11 @@ try {
                 SELECT posts.*, users.username 
                 FROM posts 
                 LEFT JOIN users ON posts.user_id = users.id 
-                WHERE posts.title LIKE :search OR posts.content LIKE :search 
+                WHERE posts.title LIKE :search_title OR posts.content LIKE :search_content 
                 ORDER BY posts.created_at DESC LIMIT :limit OFFSET :offset
             ");
-            $stmt->bindValue(':search', '%' . $search_query . '%', PDO::PARAM_STR);
+            $stmt->bindValue(':search_title', '%' . $search_query . '%', PDO::PARAM_STR);
+            $stmt->bindValue(':search_content', '%' . $search_query . '%', PDO::PARAM_STR);
         } else {
             $stmt = $conn->prepare("
                 SELECT posts.*, users.username 
@@ -97,11 +102,12 @@ try {
                 SELECT posts.*, users.username 
                 FROM posts 
                 LEFT JOIN users ON posts.user_id = users.id 
-                WHERE posts.user_id = :user_id AND (posts.title LIKE :search OR posts.content LIKE :search) 
+                WHERE posts.user_id = :user_id AND (posts.title LIKE :search_title OR posts.content LIKE :search_content) 
                 ORDER BY posts.created_at DESC LIMIT :limit OFFSET :offset
             ");
             $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
-            $stmt->bindValue(':search', '%' . $search_query . '%', PDO::PARAM_STR);
+            $stmt->bindValue(':search_title', '%' . $search_query . '%', PDO::PARAM_STR);
+            $stmt->bindValue(':search_content', '%' . $search_query . '%', PDO::PARAM_STR);
         } else {
             $stmt = $conn->prepare("
                 SELECT posts.*, users.username 

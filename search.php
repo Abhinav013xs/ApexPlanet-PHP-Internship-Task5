@@ -35,8 +35,11 @@ $error_message = "";
 try {
     if (!empty($search_query)) {
         // 1. Get the total count of matching articles for pagination calculation using Prepared Statement
-        $count_stmt = $conn->prepare("SELECT COUNT(*) FROM posts WHERE title LIKE :search OR content LIKE :search");
-        $count_stmt->execute(['search' => '%' . $search_query . '%']);
+        $count_stmt = $conn->prepare("SELECT COUNT(*) FROM posts WHERE title LIKE :search_title OR content LIKE :search_content");
+        $count_stmt->execute([
+            'search_title' => '%' . $search_query . '%',
+            'search_content' => '%' . $search_query . '%'
+        ]);
         $total_posts = (int)$count_stmt->fetchColumn();
         
         // Calculate total pages
@@ -47,15 +50,17 @@ try {
             SELECT posts.*, users.username 
             FROM posts 
             LEFT JOIN users ON posts.user_id = users.id 
-            WHERE posts.title LIKE :search OR posts.content LIKE :search 
+            WHERE posts.title LIKE :search_title OR posts.content LIKE :search_content 
             ORDER BY posts.created_at DESC 
             LIMIT :limit OFFSET :offset
         ");
         
         // Bind parameters securely
-        $stmt->bindValue(':search', '%' . $search_query . '%', PDO::PARAM_STR);
+        $stmt->bindValue(':search_title', '%' . $search_query . '%', PDO::PARAM_STR);
+        $stmt->bindValue(':search_content', '%' . $search_query . '%', PDO::PARAM_STR);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
         
         $stmt->execute();
         $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
