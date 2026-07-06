@@ -1,0 +1,139 @@
+/* 
+  Project: PHP & MySQL Blog Management System (Task 5)
+  Author: Web Development Team
+  Description: Custom CSS styles to supplement Bootstrap 5, implementing a professional design system.
+*/
+
+:root {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --dark-slate: #0f172a;
+    --medium-slate: #1e293b;
+    --light-bg: #f8fafc;
+    --border-color: #e2e8f0;
+    --text-muted: #64748b;
+    --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --card-shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Global Reset & Typography */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--light-bg);
+    color: var(--dark-slate);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transition: all 0.2s ease-in-out;
+}
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+/* Card Improvements */
+.card {
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 12px;
+}
+.hover-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--card-shadow-hover) !important;
+}
+
+/* Custom dashboard stat cards layout */
+.stat-card {
+    border-left: 5px solid var(--primary-color) !important;
+}
+.stat-card-users {
+    border-left: 5px solid #10b981 !important; /* Emerald green */
+}
+
+/* Pre-line formatting to preserve line breaks in blog content */
+.post-content-preview {
+    white-space: pre-line;
+    color: var(--medium-slate);
+    line-height: 1.6;
+}
+
+/* Table Enhancements */
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.table th {
+    background-color: #f1f5f9;
+    color: var(--medium-slate);
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+}
+.table td {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0.75rem;
+}
+.table-responsive {
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+/* Custom Navigation UI */
+.navbar-brand span {
+    letter-spacing: -0.5px;
+}
+.nav-link {
+    transition: color 0.15s ease-in-out;
+}
+.btn-logout-nav {
+    border-color: rgba(220, 53, 69, 0.4);
+}
+.btn-logout-nav:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+/* Styled Forms */
+.form-control, .form-select {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Hover Links */
+.hover-link {
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+.hover-link:hover {
+    color: var(--primary-hover) !important;
+}
+
+/* Page Not Found / Forbidden Layouts */
+.error-icon {
+    font-size: 5.5rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
