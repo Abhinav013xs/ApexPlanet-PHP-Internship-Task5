@@ -13,6 +13,14 @@ $error = "";
 $success = "";
 $user_id = $_SESSION["user_id"];
 
+// Fallback defaults to prevent PHP Undefined Variable warnings during database connection issues
+$user = [
+    'username' => '',
+    'role' => '',
+    'created_at' => date('Y-m-d H:i:s')
+];
+$total_user_posts = 0;
+
 // Fetch current user details and total posts count
 try {
     // Fetch details
